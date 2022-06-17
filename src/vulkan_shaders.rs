@@ -1,9 +1,8 @@
 
+pub mod compute_32 {
+    use vulkano_shaders;
 
- pub mod compute_32 {
-     use vulkano_shaders;
-
- vulkano_shaders::shader!{
+    vulkano_shaders::shader! {
         ty: "compute",
         src: "
 #version 450
@@ -49,5 +48,4 @@ void main() {
     buf.data[persistent] = 1;
 }"
     }
-
- }
+}

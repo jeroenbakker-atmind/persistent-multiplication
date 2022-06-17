@@ -1,23 +1,26 @@
-use vulkano::pipeline::*;
-use vulkano::instance::*;
+use vulkano::buffer::*;
+use vulkano::command_buffer::*;
+use vulkano::descriptor_set::*;
 use vulkano::device::physical::*;
 use vulkano::device::*;
-use vulkano::buffer::*;
-use vulkano::descriptor_set::*;
-use vulkano::command_buffer::*;
+use vulkano::instance::*;
 use vulkano::pipeline::layout::PipelineLayoutCreateInfo;
 use vulkano::pipeline::layout::PushConstantRange;
-use vulkano::sync::*;
+use vulkano::pipeline::*;
 use vulkano::shader::*;
+use vulkano::sync::*;
 
 use crate::vulkan_shaders;
 
-pub fn calc_range(from:u32, to:u32) -> u8{
+pub fn calc_range(from: u32, to: u32) -> u8 {
     let instance = Instance::new(InstanceCreateInfo::default()).expect("failed to create instance");
-let physical = PhysicalDevice::enumerate(&instance).next().expect("no device available");
-let queue_family = physical.queue_families()
-    .find(|&q| q.supports_compute())
-    .expect("couldn't find a compute queue family");
+    let physical = PhysicalDevice::enumerate(&instance)
+        .next()
+        .expect("no device available");
+    let queue_family = physical
+        .queue_families()
+        .find(|&q| q.supports_compute())
+        .expect("couldn't find a compute queue family");
     let (device, mut queues) = Device::new(
         physical,
         DeviceCreateInfo {
@@ -28,73 +31,72 @@ let queue_family = physical.queue_families()
     )
     .expect("failed to create device");
     let queue = queues.next().unwrap();
-    let data = [0;256];
+    let data = [0; 256];
     let output_buffer =
         CpuAccessibleBuffer::from_data(device.clone(), BufferUsage::all(), false, data)
             .expect("failed to create buffer");
-            let shader = vulkan_shaders::compute_32::load(device.clone())
-            .expect("failed to create shader module");
+    let shader =
+        vulkan_shaders::compute_32::load(device.clone()).expect("failed to create shader module");
 
-            let compute_pipeline = ComputePipeline::new(
-                device.clone(),
-                shader.entry_point("main").unwrap(),
-                &(),
-                None,
-                |_| {},
-            )
-            .expect("failed to create compute pipeline");
+    let compute_pipeline = ComputePipeline::new(
+        device.clone(),
+        shader.entry_point("main").unwrap(),
+        &(),
+        None,
+        |_| {},
+    )
+    .expect("failed to create compute pipeline");
 
-            let layout = compute_pipeline.layout().set_layouts().get(0).unwrap();
-            let set = PersistentDescriptorSet::new(
-                layout.clone(),
-                [
-                    WriteDescriptorSet::buffer(0, output_buffer.clone()),
-                    ],
-            )
-            .unwrap();
-let mut builder = AutoCommandBufferBuilder::primary(
-    device.clone(),
-    queue.family(),
-    CommandBufferUsage::OneTimeSubmit,
-)
-.unwrap();
+    let layout = compute_pipeline.layout().set_layouts().get(0).unwrap();
+    let set = PersistentDescriptorSet::new(
+        layout.clone(),
+        [WriteDescriptorSet::buffer(0, output_buffer.clone())],
+    )
+    .unwrap();
+    let mut builder = AutoCommandBufferBuilder::primary(
+        device.clone(),
+        queue.family(),
+        CommandBufferUsage::OneTimeSubmit,
+    )
+    .unwrap();
 
-let pushconstants_info = PipelineLayoutCreateInfo {
-    push_constant_ranges: vec![
-        PushConstantRange {
+    let pushconstants_info = PipelineLayoutCreateInfo {
+        push_constant_ranges: vec![PushConstantRange {
             stages: ShaderStages::compute(),
             offset: 0,
             size: 8,
-        },
-    ],
-    .. PipelineLayoutCreateInfo::default()
-};
-let pushconstants_layout  = PipelineLayout::new(device.clone(), pushconstants_info).unwrap();
+        }],
+        ..PipelineLayoutCreateInfo::default()
+    };
+    let pushconstants_layout = PipelineLayout::new(device.clone(), pushconstants_info).unwrap();
 
-builder
-    .bind_pipeline_compute(compute_pipeline.clone())
-    .bind_descriptor_sets(
-        PipelineBindPoint::Compute,
-        compute_pipeline.layout().clone(),
-        0, // 0 is the index of our set
-        set,
-    )
-    .fill_buffer(output_buffer.clone(), 0).unwrap();
-let mut offset = from;
+    builder
+        .bind_pipeline_compute(compute_pipeline.clone())
+        .bind_descriptor_sets(
+            PipelineBindPoint::Compute,
+            compute_pipeline.layout().clone(),
+            0, // 0 is the index of our set
+            set,
+        )
+        .fill_buffer(output_buffer.clone(), 0)
+        .unwrap();
+    let mut offset = from;
 
-while offset < to {
-    builder.push_constants(pushconstants_layout.clone(), 0, offset)
-    .push_constants(pushconstants_layout.clone(), 4, to)
-    .dispatch([65535, 1, 1]).unwrap();
-    offset += 1024*65536
-}
+    while offset < to {
+        builder
+            .push_constants(pushconstants_layout.clone(), 0, offset)
+            .push_constants(pushconstants_layout.clone(), 4, to)
+            .dispatch([65535, 1, 1])
+            .unwrap();
+        offset += 1024 * 65536
+    }
 
-let command_buffer = builder.build().unwrap();
-let future = now(device.clone())
-    .then_execute(queue.clone(), command_buffer)
-    .unwrap()
-    .then_signal_fence_and_flush()
-    .unwrap();
+    let command_buffer = builder.build().unwrap();
+    let future = now(device.clone())
+        .then_execute(queue.clone(), command_buffer)
+        .unwrap()
+        .then_signal_fence_and_flush()
+        .unwrap();
 
     future.wait(None).unwrap();
 
@@ -102,7 +104,7 @@ let future = now(device.clone())
     for n in 0..256 {
         let value = content[255 - n];
         if value != 0 {
-            return 255-n as u8;
+            return 255 - n as u8;
         }
     }
     return 0;
