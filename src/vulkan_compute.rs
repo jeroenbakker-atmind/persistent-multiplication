@@ -117,50 +117,60 @@ fn persistent_step_0() {
 
 #[test]
 fn persistent_step_1() {
+    assert_eq!(calc_range(0, 9), 0);
     assert_eq!(calc_range(0, 10), 1);
 }
 
 #[test]
 fn persistent_step_2() {
+    assert_eq!(calc_range(0, 24), 1);
     assert_eq!(calc_range(0, 25), 2);
 }
 
 #[test]
 fn persistent_step_3() {
+    assert_eq!(calc_range(0, 38), 2);
     assert_eq!(calc_range(0, 39), 3);
 }
 
 #[test]
 fn persistent_step_4() {
+    assert_eq!(calc_range(0, 76), 3);
     assert_eq!(calc_range(0, 77), 4);
 }
 
 #[test]
 fn persistent_step_5() {
+    assert_eq!(calc_range(0, 678), 4);
     assert_eq!(calc_range(0, 679), 5);
 }
 
 #[test]
 fn persistent_step_6() {
+    assert_eq!(calc_range(0, 6787), 5);
     assert_eq!(calc_range(0, 6788), 6);
 }
 
 #[test]
 fn persistent_step_7() {
+    assert_eq!(calc_range(0, 68888), 6);
     assert_eq!(calc_range(0, 68889), 7);
 }
 
 #[test]
 fn persistent_step_8() {
+    assert_eq!(calc_range(0, 2677888), 7);
     assert_eq!(calc_range(0, 2677889), 8);
 }
 
 #[test]
 fn persistent_step_9() {
+    assert_eq!(calc_range(0, 26888998), 8);
     assert_eq!(calc_range(0, 26888999), 9);
 }
 
 #[test]
 fn persistent_step_10() {
+    assert_eq!(calc_range(0, 3778888998), 9);
     assert_eq!(calc_range(0, 3778888999), 10);
 }
