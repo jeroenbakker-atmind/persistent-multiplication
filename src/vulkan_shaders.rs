@@ -16,7 +16,13 @@ layout(set = 0, binding = 0) buffer Data {
 layout(push_constant) uniform my_push_constants
 {
     uint offset;
+    uint offset1;
+    uint offset2;
+    uint offset3;
     uint end;
+    uint end1;
+    uint end2;
+    uint end3;
 };
 
 
@@ -29,7 +35,7 @@ uint perform_step(uint idx) {
     return result;
 }
 
-uint multiplication_persistent(uint idx) {
+uint multiplication_persistent_32(uint idx) {
     uint result = 0;
     uint new_idx = idx;
     while (new_idx > 9) {
@@ -44,7 +50,7 @@ void main() {
     if (idx > end) {
         return;
     }
-    uint persistent = multiplication_persistent(idx);
+    uint persistent = multiplication_persistent_32(idx);
     buf.data[persistent] = 1;
 }"
     }

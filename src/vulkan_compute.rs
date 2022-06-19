@@ -12,7 +12,7 @@ use vulkano::sync::*;
 
 use crate::vulkan_shaders;
 
-pub fn calc_range(from: u32, to: u32) -> u8 {
+pub fn calc_range(from: u64, to: u64) -> u8 {
     let instance = Instance::new(InstanceCreateInfo::default()).expect("failed to create instance");
     let physical = PhysicalDevice::enumerate(&instance)
         .next()
@@ -64,7 +64,7 @@ pub fn calc_range(from: u32, to: u32) -> u8 {
         push_constant_ranges: vec![PushConstantRange {
             stages: ShaderStages::compute(),
             offset: 0,
-            size: 8,
+            size: 32,
         }],
         ..PipelineLayoutCreateInfo::default()
     };
@@ -84,8 +84,8 @@ pub fn calc_range(from: u32, to: u32) -> u8 {
 
     while offset < to {
         builder
-            .push_constants(pushconstants_layout.clone(), 0, offset)
-            .push_constants(pushconstants_layout.clone(), 4, to)
+            .push_constants(pushconstants_layout.clone(), 0, offset as u128)
+            .push_constants(pushconstants_layout.clone(), 16, to as u128)
             .dispatch([65535, 1, 1])
             .unwrap();
         offset += 1024 * 65536
