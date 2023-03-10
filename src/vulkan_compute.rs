@@ -12,7 +12,7 @@ use vulkano::sync::*;
 
 use crate::vulkan_shaders;
 
-pub fn calc_range(from: u64, to: u64) -> u8 {
+pub fn calc_range(from: u128, to: u128) -> u8 {
     let instance = Instance::new(InstanceCreateInfo::default()).expect("failed to create instance");
     let physical = PhysicalDevice::enumerate(&instance)
         .next()
@@ -35,8 +35,11 @@ pub fn calc_range(from: u64, to: u64) -> u8 {
     let output_buffer =
         CpuAccessibleBuffer::from_data(device.clone(), BufferUsage::all(), false, data)
             .expect("failed to create buffer");
-    let shader =
-        vulkan_shaders::compute_32::load(device.clone()).expect("failed to create shader module");
+    let shader = if to <= u32::MAX as u128 {
+        vulkan_shaders::compute_32::load(device.clone()).expect("failed to create shader module")
+    } else {
+        vulkan_shaders::compute_64::load(device.clone()).expect("failed to create shader module")
+    };
 
     let compute_pipeline = ComputePipeline::new(
         device.clone(),
@@ -84,8 +87,8 @@ pub fn calc_range(from: u64, to: u64) -> u8 {
 
     while offset < to {
         builder
-            .push_constants(pushconstants_layout.clone(), 0, offset as u128)
-            .push_constants(pushconstants_layout.clone(), 16, to as u128)
+            .push_constants(pushconstants_layout.clone(), 0, offset)
+            .push_constants(pushconstants_layout.clone(), 16, to)
             .dispatch([65535, 1, 1])
             .unwrap();
         offset += 1024 * 65536
