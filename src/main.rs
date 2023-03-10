@@ -12,7 +12,7 @@ fn main() {
         let to = from + base;
         let result = vulkan_compute::calc_range(from, to);
         if result >= 10 {
-            println!("{from}-{to} = {result}");
+            println!("{i}: {from}-{to} = {result}");
         }
     }
 }
