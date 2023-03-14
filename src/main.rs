@@ -4,6 +4,7 @@ extern crate vulkano_shaders;
 mod rust_native;
 mod vulkan_compute;
 mod vulkan_shaders;
+mod pattern;
 
 /// Is the given range interesting to test.
 ///
