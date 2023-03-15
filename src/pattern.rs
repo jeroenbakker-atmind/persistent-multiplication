@@ -1,3 +1,8 @@
+//! Module is used to investigate the pattern between valid and invalid numbers.
+//!
+//! The result of this investigation would be to consistently determine the next valid
+//! number of a valid number. Creating a sequence. This sequence might be useful to
+//! pre-process areas where we want to focus on.
 use std::ops::Range;
 
 #[test]
@@ -55,6 +60,7 @@ fn deltas(range: Range<u128>) -> Vec<u128> {
     result
 }
 
+// TODO: Use % and; String conversion not needed.
 fn is_valid(value: u128) -> bool {
     let value_s = format!("{value}");
     let mut last_digit = -1;
